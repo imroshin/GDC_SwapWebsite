@@ -7,6 +7,13 @@ contract EthSwap {
     Token public token;
     uint public rate = 100;     // Redemption rate = number of tokens user receive for 1 ether
 
+    event TokenPurchased(
+        address account,
+        address token,
+        uint amount,
+        uint rate
+    );
+
     constructor(Token _token) public{
         token = _token;
     }
@@ -16,6 +23,13 @@ contract EthSwap {
 
         // tokenAmount = amount of ethereum * redemption rate
         uint tokenAmount = msg.value * rate; // msg.value feeds the amount of ether sent when this ()n was called
+
+        // Require that swap contract has enough tokens
+        require(token.balanceOf(address(this)) >= tokenAmount);
+        // transfer tokens to the user
         token.transfer(msg.sender, tokenAmount);
+
+        //Emit an event
+        emit TokenPurchased(msg.sender, address(token), tokenAmount, rate);
     }
 }
